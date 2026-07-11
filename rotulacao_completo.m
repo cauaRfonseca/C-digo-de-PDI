@@ -78,13 +78,44 @@ vRegiao = unique(imFinal);
 
 for(i=1:qtdRegioes)
   imFinal(imFinal==vRegiao(i+1,1)) = i;
+  vRegiao(i+1,1) = i;
 end
 
 figure('Name',['Imagem Final com ',num2str(qtdRegioes),' objetos'])
 imshow(imFinal, [min(min(imFinal)) max(max(imFinal))])
 
 %Coisa nova
-for(i=1:qtdRegioes)
-
+for(r=1:qtdRegioes)
+  cimaI = 999;
+  baixoI = 0;
+  esquerdaJ = 999;
+  direitaJ = 0;
+  for(i=1:size(imFinal,1))
+    for(j=1:size(imFinal,2))
+      if(imFinal(i,j)==vRegiao(r+1,1))
+        if(i<cimaI)
+          cimaI = i;
+        end
+        if(i>baixoI)
+          baixoI = i;
+        end
+        if(j<esquerdaJ)
+          esquerdaJ = j;
+        end
+        if(j>direitaJ)
+          direitaJ = j;
+        end
+      end
+    end
+  end
+  for(i=1:baixoI-cimaI+1)
+    for(j=1:direitaJ-esquerdaJ+1)
+      objetoSeparado(i,j) = imFinal(cimaI+i-1,esquerdaJ+j-1);
+    end
+  end
+  figure('Name','Objeto separado')
+  imshow(objetoSeparado, [0 max(max(objetoSeparado))])
+  size(objetoSeparado)
+  clear objetoSeparado
 end
 
