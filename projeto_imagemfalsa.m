@@ -4,8 +4,7 @@ clear all
 pkg load image
 tic
 for(cont=1:1)
-  variavelString = ['C:\Users\Cauã Fonseca\PDI\Projeto\Originais\im',int2str(cont),'.png']
-  im = imread(variavelString);
+  im = imread('C:\Users\Cauã Fonseca\PDI\Projeto\objetos.jpg');
   figure('Name','Original')
   imshow(im)
 
@@ -16,11 +15,7 @@ for(cont=1:1)
 
   for(i=1:size(im,1))
     for(j=1:size(im,2))
-      if((imR(i,j)>120)&&(imR(i,j)>imG(i,j)+35)&&(imR(i,j)>imB(i,j)+35))
-        imMask(i,j) = 1;
-      elseif((imG(i,j)>120)&&(imG(i,j)>imR(i,j)+25)&&(imG(i,j)>imB(i,j)+20))
-        imMask(i,j) = 1;
-      elseif((imB(i,j)>120)&&(imB(i,j)>imR(i,j)+35)&&(imB(i,j)>imG(i,j)+35))
+      if ((im(i,j,1)>126)||(im(i,j,2)>126)||(im(i,j,3)>126))
         imMask(i,j) = 1;
       end
     end
@@ -62,7 +57,6 @@ for(cont=1:1)
           matrizErros(qtdErros,2) = erros(1,2);
           qtdErros++;
         end
-
         if(imRotulada(i-1,j-1)!=0)
           imRotulada(i,j) = imRotulada(i-1,j-1);
         elseif(imRotulada(i-1,j)!=0)
@@ -86,7 +80,7 @@ for(cont=1:1)
 
   for(i=1:size(matrizErros,1))
     imFinal(imFinal==matrizErros(i,1)) = matrizErros(i,2);
-  endfor
+  end
 
   qtdRegioes = size(unique(imFinal),1) - 1;
   vRegiao = unique(imFinal);
@@ -98,7 +92,7 @@ for(cont=1:1)
 
   figure('Name',['Imagem Final com ',num2str(qtdRegioes),' objetos'])
   imshow(imFinal, [min(min(imFinal)) max(max(imFinal))])
-##  tic
+  tic
 ##  caracteristicas = zeros(2,qtdRegioes);
 ##  circ = zeros(1,3);
 ##  quad = zeros(1,3);
