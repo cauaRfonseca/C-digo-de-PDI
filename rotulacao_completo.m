@@ -4,27 +4,33 @@ clear all
 pkg load image
 tic
 for(cont=1:1)
-  variavelString = ['C:\Users\Cauã Fonseca\PDI\Projeto\Originais\im',int2str(cont),'.png']
+  variavelString = ['D:\Dev\Octave\C-digo-de-PDI\Originais\im',int2str(cont),'.png']
   im = imread(variavelString);
   figure('Name','Original')
   imshow(im)
 
-  imMask = logical(zeros(size(im,1),size(im,2)));
+  imMask = zeros(size(im,1),size(im,2));
   imR = im(:,:,1);
   imG = im(:,:,2);
   imB = im(:,:,3);
 
-  for(i=1:size(im,1))
-    for(j=1:size(im,2))
-      if((imR(i,j)>120)&&(imR(i,j)>imG(i,j)+35)&&(imR(i,j)>imB(i,j)+35))
-        imMask(i,j) = 1;
-      elseif((imG(i,j)>120)&&(imG(i,j)>imR(i,j)+25)&&(imG(i,j)>imB(i,j)+20))
-        imMask(i,j) = 1;
-      elseif((imB(i,j)>120)&&(imB(i,j)>imR(i,j)+35)&&(imB(i,j)>imG(i,j)+35))
-        imMask(i,j) = 1;
-      end
-    end
-  end
+##  for(i=1:size(im,1))
+##    for(j=1:size(im,2))
+##      if((imR(i,j)>120)&&(imR(i,j)>imG(i,j)+35)&&(imR(i,j)>imB(i,j)+35))
+##        imMask(i,j) = 1;
+##      elseif((imG(i,j)>120)&&(imG(i,j)>imR(i,j)+25)&&(imG(i,j)>imB(i,j)+20))
+##        imMask(i,j) = 1;
+##      elseif((imB(i,j)>120)&&(imB(i,j)>imR(i,j)+35)&&(imB(i,j)>imG(i,j)+35))
+##        imMask(i,j) = 1;
+##      end
+##    end
+##  end
+    imMask(((imR > 120) & (imR > imG + 35) & (imR > imB + 35)) |
+    ((imG > 120) & (imG > imR + 25) & (imG > imB + 20)) |
+    ((imB > 120) & (imB > imR + 35) & (imB > imG + 35))) = 1;
+
+##imMask = logical(imMask);
+
 
   figure('Name','Red')
   imshow(imR)
@@ -43,50 +49,39 @@ for(cont=1:1)
   Rotulo = 2;
 
   for(i=2:size(imMask,1)-1)
+
     for(j=2:size(imMask,2)-1)
-      if(imMask(i,j)==1)
-        vizinhos = [imRotulada(i-1,j-1), imRotulada(i-1,j), imRotulada(i-1,j+1), imRotulada(i,j-1)];
-        distintos = unique(vizinhos);
-        k=1;
-        erros = 0;
 
-        for(l=1:size(distintos,2))
-          if(distintos(1,l)!=0)
-            erros(1,k) = distintos(1,l);
-            k = k + 1;
-          end
-        end
+        if(imMask(i,j)==1)
 
-        if(size(erros,2)>1)
-          matrizErros(qtdErros,1) = erros(1,1);
-          matrizErros(qtdErros,2) = erros(1,2);
-          qtdErros++;
-        end
 
-        if(imRotulada(i-1,j-1)!=0)
-          imRotulada(i,j) = imRotulada(i-1,j-1);
-        elseif(imRotulada(i-1,j)!=0)
-          imRotulada(i,j) = imRotulada(i-1,j);
-        elseif(imRotulada(i-1,j+1)!=0)
-          imRotulada(i,j) = imRotulada(i-1,j+1);
-        elseif(imRotulada(i,j-1)!=0)
-          imRotulada(i,j) = imRotulada(i,j-1);
-        else
-          imRotulada(i,j) = Rotulo;
-          Rotulo++;
-        end
+            vizinhos = [ imRotulada(i-1,j-1),
+                         imRotulada(i-1,j),
+                         imRotulada(i-1,j+1),
+                         imRotulada(i,j-1) ];
 
-      end
-    end
-  end
+            erros = unique(vizinhos);
+            erros(erros==0) = [];
 
-  matrizErros = unique(matrizErros,"rows");
+            if(isempty(erros))
+                imRotulada(i,j) = Rotulo;
+                Rotulo++;
+            else
+                menor = min(erros);
+                imRotulada(i,j) = menor;
 
-  imFinal = imRotulada;
-
-  for(i=1:size(matrizErros,1))
-    imFinal(imFinal==matrizErros(i,1)) = matrizErros(i,2);
+                if(length(erros)>1)
+                    for(k=1:length(erros))
+                        if(erros(k) != menor)
+                            imRotulada(imRotulada == erros(k)) = menor;
+                        endif
+                    endfor
+                endif
+            endif
+        endif
+    endfor
   endfor
+  imFinal = imRotulada;
 
   qtdRegioes = size(unique(imFinal),1) - 1;
   vRegiao = unique(imFinal);
