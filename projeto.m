@@ -3,8 +3,8 @@ close all
 clear all
 pkg load image
 tic
-for(cont=1:1)
-  variavelString = ['D:\Dev\Octave\C-digo-de-PDI\Originais\im',int2str(cont),'.png']
+for(cont=5:5)
+  variavelString = ['C:\Users\Cauã Fonseca\PDI\Projeto\Originais\im',int2str(cont),'.png']
   im = imread(variavelString);
   figure('Name','Original')
   imshow(im)
@@ -14,62 +14,32 @@ for(cont=1:1)
   imG = im(:,:,2);
   imB = im(:,:,3);
 
-##  for(i=1:size(im,1))
-##    for(j=1:size(im,2))
-##      if((imR(i,j)>120)&&(imR(i,j)>imG(i,j)+35)&&(imR(i,j)>imB(i,j)+35))
-##        imMask(i,j) = 1;
-##      elseif((imG(i,j)>120)&&(imG(i,j)>imR(i,j)+25)&&(imG(i,j)>imB(i,j)+20))
-##        imMask(i,j) = 1;
-##      elseif((imB(i,j)>120)&&(imB(i,j)>imR(i,j)+35)&&(imB(i,j)>imG(i,j)+35))
-##        imMask(i,j) = 1;
-##      end
-##    end
-##  end
     imMask(((imR > 120) & (imR > imG + 35) & (imR > imB + 35)) |
     ((imG > 120) & (imG > imR + 25) & (imG > imB + 20)) |
     ((imB > 120) & (imB > imR + 35) & (imB > imG + 35))) = 1;
-
-##imMask = logical(imMask);
-
-
-  figure('Name','Red')
-  imshow(imR)
-  figure('Name','Green')
-  imshow(imG)
-  figure('Name','Blue')
-  imshow(imB)
 
   figure('Name','Máscara')
   imshow(imMask)
 
   imRotulada = uint8(imMask);
 
-  qtdErros = 1;
-
   Rotulo = 2;
 
   for(i=2:size(imMask,1)-1)
-
     for(j=2:size(imMask,2)-1)
-
         if(imMask(i,j)==1)
-
-
             vizinhos = [ imRotulada(i-1,j-1),
                          imRotulada(i-1,j),
                          imRotulada(i-1,j+1),
                          imRotulada(i,j-1) ];
-
             erros = unique(vizinhos);
             erros(erros==0) = [];
-
             if(isempty(erros))
                 imRotulada(i,j) = Rotulo;
                 Rotulo++;
             else
                 menor = min(erros);
                 imRotulada(i,j) = menor;
-
                 if(length(erros)>1)
                     for(k=1:length(erros))
                         if(erros(k) != menor)
@@ -83,7 +53,7 @@ for(cont=1:1)
   endfor
   imFinal = imRotulada;
 
-  qtdRegioes = size(unique(imFinal),1) - 2;
+  qtdRegioes = size(unique(imFinal),1) - 1;
   vRegiao = unique(imFinal);
 
   for(i=1:qtdRegioes)
@@ -93,18 +63,17 @@ for(cont=1:1)
 
   figure('Name',['Imagem Final com ',num2str(qtdRegioes),' objetos'])
   imshow(imFinal, [min(min(imFinal)) max(max(imFinal))])
+
   tic
   caracteristicas = zeros(2,qtdRegioes);
   circ = zeros(1,3);
   quad = zeros(1,3);
   tri = zeros(1,3);
 
-
-  %Coisa nova
   for(r=1:qtdRegioes)
-    cimaI = 999;
+    cimaI = 9999;
     baixoI = 0;
-    esquerdaJ = 999;
+    esquerdaJ = 9999;
     direitaJ = 0;
     for(i=1:size(imFinal,1))
       for(j=1:size(imFinal,2))
@@ -129,19 +98,14 @@ for(cont=1:1)
         objetoSeparado(i,j) = imFinal(cimaI+i-1,esquerdaJ+j-1);
       end
     end
-    figure('Name','Objeto separado')
-    imshow(objetoSeparado, [0 max(max(objetoSeparado))])
+##    figure('Name','Objeto separado')
+##    imshow(objetoSeparado, [0 max(max(objetoSeparado))])
     areaObjeto = 0;
-    perimetroObjeto = 0;
 
     for i = 1:size(objetoSeparado, 1)
       for j = 1:size(objetoSeparado, 2)
         if (objetoSeparado(i, j) == vRegiao(r+1, 1))
           areaObjeto = areaObjeto + 1;
-
-          if (i == 1 || i == size(objetoSeparado, 1) || j == 1 || j == size(objetoSeparado, 2) || objetoSeparado(i-1, j) == 0 || objetoSeparado(i+1, j) == 0 || objetoSeparado(i, j-1) == 0 || objetoSeparado(i, j+1) == 0)
-            perimetroObjeto = perimetroObjeto + 1;
-          endif
         endif
       endfor
     endfor
@@ -209,8 +173,6 @@ for(cont=1:1)
     endfor
     figure('Name', nomeArquivo);
     imshow(imagemRecortadaColorida);
-  ##  imwrite(imagemRecortadaColorida, nomeArquivo);
-    size(objetoSeparado)
     clear objetoSeparado
   end
   for(r=1:qtdRegioes);
@@ -243,7 +205,7 @@ for(cont=1:1)
 
     endif
   endfor
-  fprintf("\n===== Resumo =====\n");
+  fprintf("\n===== Resumo de im",int2str(cont)," =====\n");
 
   fprintf("Total de objetos : ", qtdRegioes);
   fprintf("Circulos:\n");
