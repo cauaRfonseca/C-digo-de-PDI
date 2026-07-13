@@ -14,17 +14,9 @@ for(cont=1:1)
   imG = im(:,:,2);
   imB = im(:,:,3);
 
-  for(i=1:size(im,1))
-    for(j=1:size(im,2))
-      if((imR(i,j)>120)&&(imR(i,j)>imG(i,j)+35)&&(imR(i,j)>imB(i,j)+35))
-        imMask(i,j) = 1;
-      elseif((imG(i,j)>120)&&(imG(i,j)>imR(i,j)+25)&&(imG(i,j)>imB(i,j)+20))
-        imMask(i,j) = 1;
-      elseif((imB(i,j)>120)&&(imB(i,j)>imR(i,j)+35)&&(imB(i,j)>imG(i,j)+35))
-        imMask(i,j) = 1;
-      end
-    end
-  end
+  imMask(((imR > 120) & (imR > imG + 35) & (imR > imB + 35)) |
+    ((imG > 120) & (imG > imR + 25) & (imG > imB + 20)) |
+    ((imB > 120) & (imB > imR + 35) & (imB > imG + 35))) = 1;
 
   figure('Name','Red')
   imshow(imR)
@@ -63,24 +55,34 @@ for(cont=1:1)
           qtdErros++;
         end
 
-        if(imRotulada(i-1,j-1)!=0)
-          imRotulada(i,j) = imRotulada(i-1,j-1);
-        elseif(imRotulada(i-1,j)!=0)
-          imRotulada(i,j) = imRotulada(i-1,j);
-        elseif(imRotulada(i-1,j+1)!=0)
-          imRotulada(i,j) = imRotulada(i-1,j+1);
-        elseif(imRotulada(i,j-1)!=0)
-          imRotulada(i,j) = imRotulada(i,j-1);
+        if(size(distintos,2)>1)
+          imRotulada(i,j) = distintos(1,2);
+        elseif(distintos(1,1)!=0)
+          imRotulada(i,j) = distintos(1,1);
         else
           imRotulada(i,j) = Rotulo;
           Rotulo++;
         end
+
+##        if(imRotulada(i-1,j-1)!=0)
+##          imRotulada(i,j) = imRotulada(i-1,j-1);
+##        elseif(imRotulada(i-1,j)!=0)
+##          imRotulada(i,j) = imRotulada(i-1,j);
+##        elseif(imRotulada(i-1,j+1)!=0)
+##          imRotulada(i,j) = imRotulada(i-1,j+1);
+##        elseif(imRotulada(i,j-1)!=0)
+##          imRotulada(i,j) = imRotulada(i,j-1);
+##        else
+##          imRotulada(i,j) = Rotulo;
+##          Rotulo++;
+##        end
 
       end
     end
   end
 
   matrizErros = unique(matrizErros,"rows");
+  matrizErros
 
   imFinal = imRotulada;
 
